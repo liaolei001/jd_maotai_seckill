@@ -2,6 +2,8 @@
 import time
 import requests
 import json
+import http.client
+
 
 from datetime import datetime
 from jd_logger import logger
@@ -28,10 +30,19 @@ class Timer(object):
         从京东服务器获取时间毫秒
         :return:
         """
-        url = 'https://a.jd.com//ajax/queryServerData.html'
-        ret = requests.get(url).text
-        js = json.loads(ret)
-        return int(js["serverTime"])
+        conn = http.client.HTTPSConnection("api.m.jd.com")
+        payload = ''
+        headers = {
+            'User-Agent': 'Apifox/1.0.0 (https://www.apifox.cn)'
+        }
+        conn.request("GET", "/client.action?functionId=queryMaterialProducts&client=wh5", payload, headers)
+        res = conn.getresponse()
+        data = res.read()
+        # # url = 'https://a.jd.com//ajax/queryServerData.html'
+        # url = 'https://api.m.jd.com/client.action?functionId=queryMaterialProducts&client=wh5'
+        # ret = requests.get(url).text
+        js = json.loads(data)
+        return int(js["currentTime2"])
 
     def local_time(self):
         """
